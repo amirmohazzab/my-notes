@@ -1,17 +1,13 @@
 import React, {useState} from 'react'
-import { FlatList, StyleSheet, View, TouchableWithoutFeedback, Keyboard} from 'react-native';
+import { FlatList, StyleSheet, View, TouchableWithoutFeedback, Keyboard, Alert} from 'react-native';
 import Header from './components/Header';
 import Tasks from './components/Tasks';
+import AddTasks from './components/AddTasks';
+import Counter from './components/Counter';
 
 const App = () => {
 
-  const [tasks, setTasks] = useState([
-    {name: "work", key: "1", completed: false},
-    {name: "free study", key: "2", completed: false},
-    {name: "sport", key: "3", completed: false},
-    {name: "cleaning", key: "4", completed: false},
-    {name: "cooking", key: "5", completed: false}
-  ]);
+  const [tasks, setTasks] = useState([]);
 
   const [task, setTask] = useState("");
 
@@ -27,13 +23,45 @@ const App = () => {
     allTasks[taskIndex] = task;
 
     setTasks(allTasks);
-  }
+  };
+
+  const submitHandler = () => {
+    if (task.length>3) {
+      setTasks((prevTasks) => [
+        ...prevTasks, 
+      {
+        name: task,
+        key: Math.floor(Math.random()*1000).toString(),
+        completed: false
+      }
+      ]);
+      setTask("");
+      Keyboard.dismiss();
+    } else {
+      Alert.alert("Attention", "Characters must not less than 3", [
+        {text: "Ok", onPress: () => {console.log("Alert closed")}}
+      ])
+    }
+  };
+
+
+  const completedItems = tasks.filter((p) => p.completed == true);
+  const nonCompletedItems = tasks.filter((p) => p.completed == false);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}> 
        <View style={styles.container}>
        <Header />
        <View style={styles.body}>
+        <AddTasks 
+          submitHandler={submitHandler}
+          setTask={setTask}
+          task={task}
+        />
+        <Counter 
+          completedItems={completedItems}
+          nonCompletedItems={nonCompletedItems}
+        />
         <View style={styles.items}>
           <FlatList 
             data={tasks}
